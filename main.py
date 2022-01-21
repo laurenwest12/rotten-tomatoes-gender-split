@@ -15,6 +15,30 @@ driver = webdriver.Chrome(service=s)
 
 wait = WebDriverWait(driver, 10)
 
+class Stats:
+    """Class that aggregates all of the stats for a movie."""
+    def __init__(self):
+        self.count = 0
+        self.rotten = 0
+        self.fresh = 0
+
+    def addCount(self):
+        self.count += 1
+    
+    def addRotten(self):
+        self.rotten += 1
+    
+    def addFresh (self):
+        self.fresh += 1
+
+    def showScore(self):
+        return self.fresh / self.count
+
+women = Stats()
+men = Stats()
+unknown = Stats()
+total = Stats()
+
 def find_gender_breakdown(url):
     driver.get(url)
     next_class = '.js-prev-next-paging-next.btn.prev-next-paging__button.prev-next-paging__button-right'
@@ -26,22 +50,6 @@ def find_gender_breakdown(url):
 
 
     reviews = {}
-
-    female_count = 0
-    female_rotten = 0
-    female_fresh = 0
-
-    male_count = 0
-    male_rotten = 0
-    male_fresh = 0
-
-    unknown_count = 0
-    unknown_rotten = 0
-    unknown_fresh = 0
-
-    total_count = 0
-    total_rotten = 0
-    total_fresh = 0
 
     while(next_button):
         time.sleep(3)
@@ -83,60 +91,59 @@ def find_gender_breakdown(url):
         gender = reviews[name]['gender']
         tomatometer = reviews[name]['tomatometer']
 
-        total_count += 1
+        total.addCount()
 
         if gender == 'female':
-           female_count += 1
+           women.addCount()
            if tomatometer == 'fresh':
-               female_fresh += 1
-               total_fresh += 1
+               women.addFresh()
+               total.addFresh()
            if tomatometer == 'rotten':
-               female_rotten += 1
-               total_rotten += 1
+               women.addRotten()
+               total.addRotten()
 
         if gender == 'male':
-           male_count += 1
+           men.addCount()
            if tomatometer == 'fresh':
-               male_fresh += 1
-               total_fresh += 1
+               men.addFresh()
+               total.addFresh()
            if tomatometer == 'rotten':
-               male_rotten += 1
-               total_rotten += 1
+               men.addRotten()
+               total.addRotten()
         
         if gender == None:
-            unknown_count += 1
+            unknown.addCount()
             if tomatometer == 'fresh':
-               unknown_fresh += 1
-               total_fresh += 1
+               unknown.addFresh()
+               total.addFresh()
 
             if tomatometer == 'rotten':
-               unknown_rotten += 1
-               total_rotten += 1
+               unknown.addRotten()
+               total.addRotten()
 
         
     print(url)
-    print('Total Women: {}'.format(female_count))
-    print('Women % to Total: {}'.format(female_count/total_count))
-    print('Women Rotten: {}'.format(female_rotten))
-    print('Women Fresh: {}'.format(female_fresh))
-    print('Women Tomatometer: {}'.format(female_fresh/female_count))
+    print('Total Women: {}'.format(women.count))
+    print('Women % to Total: {}'.format(round((women.count/total.count)*100)))
+    print('Women Rotten: {}'.format(women.rotten))
+    print('Women Fresh: {}'.format(women.fresh))
+    print('Women Tomatometer: {}'.format(round((women.fresh/women.count)*100)))
     print(' ')
-    print('Total Men: {}'.format(male_count))
-    print('Men % to Total: {}'.format(male_count/total_count))
-    print('Men Rotten: {}'.format(male_rotten))
-    print('Men Fresh: {}'.format(male_fresh))
-    print('Men Tomatometer: {}'.format(male_fresh/male_count))
+    print('Total Men: {}'.format(men.count))
+    print('Men % to Total: {}'.format(round((men.count/total.count)*100)))
+    print('Men Rotten: {}'.format(men.rotten))
+    print('Men Fresh: {}'.format(men.fresh))
+    print('Men Tomatometer: {}'.format(round((men.fresh/men.count)*100)))
     print(' ')
-    print('Total Unknown: {}'.format(unknown_count))
-    print('Unknown % to Total: {}'.format(unknown_count/total_count))
-    print('Unknown Rotten: {}'.format(unknown_rotten))
-    print('Unknown Fresh: {}'.format(unknown_fresh))
-    print('Unknown Tomatometer: {}'.format(unknown_fresh/unknown_count))
+    print('Total Unknown: {}'.format(unknown.count))
+    print('Unknown % to Total: {}'.format(round((unknown.count/total.count)*100)))
+    print('Unknown Rotten: {}'.format(unknown.rotten))
+    print('Unknown Fresh: {}'.format(unknown.fresh))
+    print('Unknown Tomatometer: {}'.format(round((unknown.fresh/unknown.count)*100)))
     print(' ')
-    print('Total: {}'.format(total_count))
-    print('Total Rotten: {}'.format(total_rotten))
-    print('Total Fresh: {}'.format(total_fresh))
-    print('Total Tomatometer: {}'.format(total_fresh/total_count))
+    print('Total: {}'.format(total.count))
+    print('Total Rotten: {}'.format(total.rotten))
+    print('Total Fresh: {}'.format(total.fresh))
+    print('Total Tomatometer: {}'.format(round((total.fresh/total.count)*100)))
 
-
-find_gender_breakdown('https://www.rottentomatoes.com/m/oceans_8/reviews?intcmp=rt-scorecard_tomatometer-reviews')
+find_gender_breakdown('https://www.rottentomatoes.com/m/citizen_kane/reviews?intcmp=rt-scorecard_tomatometer-reviews')
